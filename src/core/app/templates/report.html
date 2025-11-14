@@ -1,0 +1,47 @@
+{% extends base_template %}
+{% load partials %}
+
+{% block content %}
+
+<!-- Page Header -->
+{% include "components/page_header.html" with title="Reportes" subtitle="Generar reportes" %}
+
+<form hx-get="{% url 'report-execute' %}" class="mb-6 space-y-4" hx-disabled-elt=".btn">
+    <article class="relative" hx-indicator="#loading-overlay">
+        <div class="card bg-base-100 shadow-xl relative">
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Reporte</legend>
+                        <select class="select select-sm w-full" name="report_id" required>
+                            <option value="">Selecciona un reporte</option>
+                            {% for report in reports %}
+                            <option value="{{ report.id }}">{{ report.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Fecha Inicio</legend>
+                        <input type="date" name="start_date" id="start_date" class="input input-sm input-bordered w-full" required />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Fecha Final</legend>
+                        <input type="date" name="end_date" id="end_date" class="input input-sm  input-bordered w-full" required />
+                    </fieldset>
+
+                    <div id="report-parameters"></div>
+                </div>
+            </div>
+        </div>
+
+        {% include "components/loading.html" %}
+    </article>
+
+    <div class="flex justify-end mb-4 space-x-2">
+        <button type="submit" class="btn btn-primary btn-sm">Generar</button>
+    </div>
+
+</form>
+{% endblock %}

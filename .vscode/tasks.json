@@ -1,0 +1,144 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "docker compose build core",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "build",
+			"problemMatcher": [],
+			"label": "Docker Build core",
+			"detail": "Build the core container image"
+		},
+		{
+			"type": "shell",
+			"command": "docker compose up -d",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "build",
+			"problemMatcher": [],
+			"label": "Docker Compose Up",
+			"detail": "Start all containers in detached mode"
+		},
+		{
+			"type": "shell",
+			"command": "docker compose exec core python manage.py runserver 0:8000",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Run Django Server",
+			"detail": "Start Django development server directly in container",
+			"isBackground": true
+		},
+		{
+			"type": "shell",
+			"command": "docker compose exec core python manage.py makemessages -l es",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Django Messages Generate",
+			"detail": "Generate translation message files for Spanish, etc",
+			"isBackground": true
+		},
+		{
+			"type": "shell",
+			"command": "docker compose exec core python manage.py compilemessages",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Django Messages Compile",
+			"detail": "Compile translation message files for Spanish, etc",
+			"isBackground": true
+		},
+		{
+			"type": "shell",
+			"label": "Kill Django Server",
+			"command": "docker compose exec core bash -c \"fuser -k 8000/tcp\"",
+			"problemMatcher": [],
+			"detail": "Mata cualquier proceso que esté usando el puerto 8000"
+		},
+		{
+			"type": "shell",
+			"command": "source ~/.nvm/nvm.sh && nvm use 20.19.0 && npm run dev",
+			"options": {
+				"cwd": "${workspaceFolder}/src/report-ui"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Run Vue Server",
+			"detail": "vite with Node.js 20.19.0"
+		},
+		{
+			"type": "shell",
+			"label": "Run Tailwind CSS Watch",
+			"command": "docker compose exec core bash -c \"static/tailwindcss -i static/css/input.css -o static/css/output.css --watch\"",
+			"problemMatcher": [],
+			"detail": "Run Tailwind CSS in watch mode"
+		},
+		{
+			"type": "shell",
+			"command": "docker compose logs core -f",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Docker Logs core",
+			"detail": "Follow core container logs in real-time",
+			"isBackground": true
+		},
+		{
+			"type": "shell",
+			"command": "docker-compose exec core python manage.py test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "test",
+			"problemMatcher": [],
+			"label": "Run Django Tests",
+			"detail": "Execute all Django tests in core container"
+		},
+		{
+			"type": "shell",
+			"command": "docker-compose exec core python manage.py makemigrations",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "test",
+			"problemMatcher": [],
+			"label": "Run Django Makemigrations",
+			"detail": "Execute all Django makemigrations in core container"
+		},
+		{
+			"type": "shell",
+			"command": "docker-compose exec core python manage.py migrate",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "test",
+			"problemMatcher": [],
+			"label": "Run Django Migrate",
+			"detail": "Execute all Django migrations in core container"
+		},
+		{
+			"type": "shell",
+			"command": "docker-compose exec core python manage.py show_urls",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Show Django URLs",
+			"detail": "Display all available Django URLs and endpoints"
+		}
+	]
+}

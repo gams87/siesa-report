@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>{{ title }}</title>
+    <style>
+        * {
+            font-size: small;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .thumbnail {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .img-logo {
+            width: 100px;
+            height: 100px;
+            margin-top: 15px;
+        }
+
+        .img-qr {
+            width: 120px;
+            height: 120px;
+        }
+
+        h1, h2, h3, h4 {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .dataframe {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 8px;
+        }
+
+        .dataframe, .dataframe td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .dataframe th {
+            border: 1px solid #40464d;
+            height: 20px;
+            color: white;
+            text-align: center;
+            background-color: #40464d;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .dataframe tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table-images {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table-header td p {
+            font-size: 10px;
+            line-height: 4px;
+        }
+
+        .total-content {
+            float: right;
+        }
+
+        .total-content table {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .total-content table td {
+            text-align: right;
+            padding-left: 20px;
+        }
+
+        .title {
+            font-size: 20px;
+            line-height: 14px;
+        }
+
+        .sub-title {
+            font-size: 16px;
+        }
+
+        .clear-fix {
+            clear: both;
+        }
+
+        .text-end {
+            text-align: end;
+        }
+
+    </style>
+</head>
+<body>
+
+<table class="table-images">
+    <tbody>
+        <tr>
+            <td class="title">
+                {{ company.name }}
+            </td>
+            <td class="text-end">
+                {% if company.logo_base64 %}
+                    <img class="img-logo" src="data:image/{{ company.logo_format|default:'png' }};base64,{{ company.logo_base64 }}" alt="logo"/>
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+{% block content %} {% endblock %}
+
+<div class="clear-fix"></div>
+</body>
+</html>

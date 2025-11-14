@@ -1,0 +1,18 @@
+[tool.ruff]
+line-length = 121
+exclude = [
+    "migrations",
+    # __pycache__,
+    # __init__.py,
+    # manage.py,
+    # settings.py
+    # asgi.py,
+    # apps.py
+]
+
+[tool.ruff.lint]
+# sort imports
+select = ["I001", "I002"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 121

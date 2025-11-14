@@ -1,0 +1,224 @@
+{% extends base_template %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-base-content mb-2">Reporte: {{ report.name|upper }}</h1>
+                {% if report.description %}
+                    <p class="text-base-content/70">{{ report.description }}</p>
+                {% endif %}
+            </div>
+            <div class="flex gap-2">
+                <button hx-get="{% url 'report' %}" class="btn btn-outline btn-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver
+                </button>
+                <button onclick="generatePDF()" class="btn btn-outline btn-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-error shadow-lg mb-6">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <h3 class="font-bold">Error al ejecutar el reporte</h3>
+                <div class="text-sm">{{ error }}</div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Results Info -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <div class="text-sm text-base-content/70">
+                    Total de registros: <span class="font-semibold">{{ total_count }}</span>
+                </div>
+                <div class="badge badge-outline badge-sm gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    {{ start_date|date:"d/m/Y" }}
+                </div>
+                <span class="text-base-content/50">→</span>
+                <div class="badge badge-outline badge-sm gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    {{ end_date|date:"d/m/Y" }}
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-sm">Registros por página:</label>
+                <select class="select select-bordered select-sm w-auto"
+                    hx-get="{% url 'report-execute' %}?report_id={{ report.id }}" hx-trigger="change" name="page_size"
+                    hx-indicator="#loading-overlay">
+                    <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+                    <option value="200" {% if page_size == 200 %}selected{% endif %}>200</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card bg-base-100 shadow-xl mb-6 relative" hx-indicator="#loading-overlay">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra table-pin-rows">
+                        <thead>
+                            <tr>
+                                <th class="bg-base-200">#</th>
+                                {% for column in columns %}
+                                    <th class="bg-base-200">{{ column }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rows %}
+                                <tr class="hover">
+                                    <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+                                    {% for value in row %}
+                                        <td {% if value|floatformat:False != value and value|add:0 == value %}class="text-right"{% endif %}>
+                                            {% if value|stringformat:"s" == "True" %}
+                                                <div class="flex items-center gap-1">
+                                                    <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </div>
+                                            {% elif value|stringformat:"s" == "False" %}
+                                                <div class="flex items-center gap-1">
+                                                    <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </div>
+                                            {% else %}
+                                                {{ value|default:"-" }}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="{{ columns|length|add:1 }}" class="text-center text-base-content/70 py-6">
+                                        <p>No hay datos disponibles. Por favor, ajusta los filtros para ver resultados.</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% include "components/loading.html" %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="flex justify-center">
+                <div class="join" hx-indicator="#loading-overlay">
+                    {% if page_obj.has_previous %}
+                        <button hx-get="?report_id={{ report.id }}&page=1&page_size={{ page_size }}" class="join-item btn">«</button>
+                        <button hx-get="?report_id={{ report.id }}&page={{ page_obj.previous_page_number }}&page_size={{ page_size }}" class="join-item btn">‹</button>
+                    {% else %}
+                        <button class="join-item btn btn-disabled">«</button>
+                        <button class="join-item btn btn-disabled">‹</button>
+                    {% endif %}
+
+                    <button class="join-item btn btn-active">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </button>
+
+                    {% if page_obj.has_next %}
+                        <button hx-get="?report_id={{ report.id }}&page={{ page_obj.next_page_number }}&page_size={{ page_size }}" class="join-item btn">›</button>
+                        <button hx-get="?report_id={{ report.id }}&page={{ page_obj.paginator.num_pages }}&page_size={{ page_size }}" class="join-item btn">»</button>
+                    {% else %}
+                        <button class="join-item btn btn-disabled">›</button>
+                        <button class="join-item btn btn-disabled">»</button>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<script>
+    function generatePDF() {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        
+        // Build PDF generation URL with same parameters
+        const pdfUrl = "{% url 'report-generate-pdf' %}?" + params.toString();
+        
+        // Show loading indicator
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Generando...';
+        
+        fetch(pdfUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Decode base64 and open in new tab
+            const base64Data = data.base64_report;
+            const filename = data.filename;
+            
+            // Convert base64 to blob
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            
+            // Create object URL and open directly
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, '_blank');
+            
+            // Clean up the object URL after a delay
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        })
+        .catch(error => {
+            console.error('Error generating PDF:', error);
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'error',
+                title: 'Error al generar el PDF',
+                text: error.message,
+                showConfirmButton: false,
+                timer: 8000,
+                timerProgressBar: true,
+            });
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        });
+    }
+</script>
+{% endblock %}

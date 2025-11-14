@@ -1,0 +1,12 @@
+{% extends 'pdf/base_pdf.html' %}
+
+{% block content %}
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2>{{ title }}</h2>
+        <p><strong>Período:</strong> {{ start_date }} - {{ end_date }}</p>
+        <p><strong>Total de registros:</strong> {{ total_regs }}</p>
+    </div>
+
+    {{ body|safe }}
+
+{% endblock %}

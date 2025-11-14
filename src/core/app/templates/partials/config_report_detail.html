@@ -1,0 +1,128 @@
+{% extends base_template %}
+
+{% block content %}
+<!-- Page Header --> 
+{% include "components/page_header.html" with title="Configuración de Reportes" subtitle="Gestiona y configura los reportes" %}
+
+<form hx-post="{% url 'config-report-detail' %}" class="mb-6 space-y-4" hx-disabled-elt=".btn">
+    <article class="relative" hx-indicator="#loading-overlay">
+        <div class="card bg-base-100 shadow-xl mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Reporte {{ report.name }}</h2>
+                <input type="hidden" name="report_id" value="{{ report.id }}" />
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Nombre del reporte</legend>
+                        <input type="text" class="input input-sm w-full" placeholder="Nombre del reporte" name="name" value="{{ report.name }}" required />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Tabla</legend>
+                        <select class="select select-sm w-full" hx-get="{% url 'config-report-columns' %}" hx-target="#columns-container" hx-trigger="change"
+                            name="table_id" required>
+                            <option value="">Selecciona una tabla</option>
+                            {% for table in tables %}
+                            <option value="{{ table.id }}" {% if report.table.id == table.id %}selected{% endif %}>{{ table.table_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Orientación PDF</legend>
+                        <select class="select select-sm w-full" name="orientation">
+                            <option value="vertical" {% if report.orientation == "vertical" %}selected{% endif %}>Vertical</option>
+                            <option value="horizontal" {% if report.orientation == "horizontal" %}selected{% endif %}>Horizontal</option>
+                        </select>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Intervalo</legend>
+                        <select class="select select-sm w-full" name="interval">
+                            <option value="all" {% if report.interval == "all" %}selected{% endif %}>Todos los registros</option>
+                            <option value="5" {% if report.interval == "5" %}selected{% endif %}>5 minutos</option>
+                            <option value="10" {% if report.interval == "10" %}selected{% endif %}>10 minutos</option>
+                            <option value="15" {% if report.interval == "15" %}selected{% endif %}>15 minutos</option>
+                            <option value="30" {% if report.interval == "30" %}selected{% endif %}>30 minutos</option>
+                            <option value="60" {% if report.interval == "60" %}selected{% endif %}>60 minutos</option>
+                        </select>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Orden de registros</legend>
+                        <select class="select select-sm w-full" name="order">
+                            <option value="asc" {% if report.order == "asc" %}selected{% endif %}>Ascendente</option>
+                            <option value="desc" {% if report.order == "desc" %}selected{% endif %}>Descendente</option>
+                        </select>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        {% if report %}
+            <span hx-get="{% url 'config-report-columns' %}?report_id={{ report.id }}" hx-target="#columns-container" hx-trigger="load" hx-push-url="false"></span>
+        {% endif %}
+
+        <div id="columns-container"></div>
+
+        {% include "components/loading.html" %}
+    </article>
+
+    <div class="flex justify-end mb-4 space-x-2">
+        <button type="button" class="btn btn-outline btn-sm" hx-get="{% url 'config-report' %}">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+    </div>
+</form>
+
+<script>
+    document.addEventListener('htmx:afterSwap', (event) => {
+        if (event.detail.target.id === 'columns-container') {
+            const selectAllCheckbox = document.getElementById('select-all');
+            const columnCheckboxes = document.querySelectorAll('.column-checkbox');
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function () {
+                    columnCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+
+                columnCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function () {
+                        const allChecked = Array.from(columnCheckboxes).every(cb => cb.checked);
+                        const someChecked = Array.from(columnCheckboxes).some(cb => cb.checked);
+                        selectAllCheckbox.checked = allChecked;
+                        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                    });
+                });
+            }
+
+            // Only one interval checkbox can be selected
+            document.querySelectorAll('input[name^="interval_"]').forEach(intervalCheckbox => {
+                intervalCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.querySelectorAll('input[name^="interval_"]').forEach(cb => {
+                            if (cb !== this) {
+                                cb.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Only one order_by checkbox can be selected
+            document.querySelectorAll('input[name^="order_by_"]').forEach(orderByCheckbox => {
+                orderByCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.querySelectorAll('input[name^="order_by_"]').forEach(cb => {
+                            if (cb !== this) {
+                                cb.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

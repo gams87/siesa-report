@@ -1,0 +1,19 @@
+{
+    "taskExplorer.exclude": [
+        "**/.venv/**",
+        "**/venv/**",
+        "**/env/**",
+        "**/__pycache__/**",
+        "**/node_modules/**",
+        "**/site-packages/**"
+    ],
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.env.osx": {
+        "FORCE_COLOR": "1",
+        "TERM": "xterm-256color"
+    },
+    "terminal.integrated.allowChords": false,
+    "terminal.ansiColorTheme": {
+        "name": "Custom"
+    }
+}

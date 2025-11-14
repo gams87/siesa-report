@@ -1,0 +1,78 @@
+name: siesa-report
+
+services:
+  cache:
+    image: redis:latest
+    container_name: cache
+    restart: always
+    command: redis-server --appendonly yes --replica-read-only no
+    volumes:
+      - cache_data:/data
+    networks:
+      - siesa_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_USER}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/backups:/backups
+    ports:
+      - "5432:5432"
+    networks:
+      - siesa_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- CORE BACKEND --- #
+  core:
+    image: siesa-core
+    container_name: core
+    restart: always
+    build:
+      context: ./src/core
+      args:
+        - DEV=${DEV}
+        - DOCKER_IMAGE_BASE=${DOCKER_IMAGE_BASE}
+    environment:
+      RUN_MODE: ${RUN_MODE}
+      PYDEVD_DISABLE_FILE_VALIDATION: 1
+    volumes:
+      - ./src/core/app:/app
+      - ./src/core/scripts:/scripts
+    ports:
+      - "8000:8000"
+      - "5678:5678"
+    depends_on:
+      cache:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - siesa_net
+
+
+volumes:
+  cache_data:
+  postgres_data:
+  minio_data:
+
+networks:
+  siesa_net:
+    driver: bridge
+    attachable: true

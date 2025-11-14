@@ -1,0 +1,238 @@
+{% extends base_template %}
+
+{% block content %}
+<!-- Page Header -->
+{% include "components/page_header.html" with title="Dashboard" subtitle="Gestiona y visualiza todos tus reportes de SIESA" %}
+
+<div hx-disabled-elt=".btn">
+    <!-- Action Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Reportes
+                </h2>
+                <p>Ver todos los reportes del sistema y exportalos a PDF o CSV.</p>
+                <div class="card-actions justify-end mt-4">
+                    <button hx-get="{% url 'report' %}" class="btn btn-primary btn-sm">Ver Reportes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                    </svg>
+                    Base de Datos
+                </h2>
+                <p>Sincroniza la metadata, tablas y columnas de tu base de datos.</p>
+                <div class="card-actions justify-end mt-4">
+                    <button hx-get="{% url 'config-report-sync' %}" hx-trigger="click" hx-target="this" hx-swap="none" class="btn btn-secondary btn-sm">Sync datos</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Configuración
+                </h2>
+                <p>Crea y gestiona reportes personalizados.</p>
+                <div class="card-actions justify-end mt-4">
+                    <button hx-get="{% url 'config-report' %}" class="btn btn-accent btn-sm">Ir a Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid Principal -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total Reportes -->
+        <div class="stats shadow-lg bg-gradient-to-br from-accent to-accent-focus text-accent-content">
+            <div class="stat">
+                <div class="stat-figure">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="stat-title text-accent-content/80">Reportes Activos</div>
+                <div class="stat-value">{{ total_reports }}</div>
+                <div class="stat-desc text-accent-content/70">{{ reports_with_interval }} con intervalo</div>
+            </div>
+        </div>
+
+        <!-- Total Bases de Datos -->
+        <div class="stats shadow-lg bg-gradient-to-br from-accent to-accent-focus text-accent-content">
+            <div class="stat">
+                <div class="stat-figure opacity-80">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                    </svg>
+                </div>
+                <div class="stat-title text-accent-content/80">Bases de Datos</div>
+                <div class="stat-value">{{ total_databases }}</div>
+                <div class="stat-desc text-accent-content/70">Conectadas</div>
+            </div>
+        </div>
+
+        <!-- Total Tablas -->
+        <div class="stats shadow-lg bg-gradient-to-br from-accent to-accent-focus text-accent-content">
+            <div class="stat">
+                <div class="stat-figure opacity-80">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="stat-title text-accent-content/80">Tablas</div>
+                <div class="stat-value">{{ total_tables }}</div>
+                <div class="stat-desc text-accent-content/70">Sincronizadas</div>
+            </div>
+        </div>
+
+        <!-- Total Columnas -->
+        <div class="stats shadow-lg bg-gradient-to-br from-info to-info-focus text-info-content">
+            <div class="stat">
+                <div class="stat-figure opacity-80">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                    </svg>
+                </div>
+                <div class="stat-title text-info-content/80">Columnas</div>
+                <div class="stat-value">{{ total_columns }}</div>
+                <div class="stat-desc text-info-content/70">Disponibles</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports & Top Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Reportes Recientes -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Reportes Recientes
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tabla</th>
+                                <th>Base de Datos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in recent_reports %}
+                            <tr>
+                                <td>
+                                    <a hx-get="{% url 'report-execute' %}?report_id={{ report.id }}" class="link link-primary">
+                                        {{ report.name }}
+                                    </a>
+                                </td>
+                                <td>{{ report.table.table_name }}</td>
+                                <td><span class="badge badge-sm">{{ report.table.database.name }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-base-content/50">No hay reportes disponibles</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablas Más Usadas -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    Tablas Más Usadas
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tabla</th>
+                                <th>Esquema</th>
+                                <th class="text-right">Reportes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for table in top_tables %}
+                            <tr>
+                                <td>{{ table.table_name }}</td>
+                                <td><span class="badge badge-ghost badge-sm">{{ table.schema_name }}</span></td>
+                                <td class="text-right">
+                                    <span class="badge badge-primary">{{ table.num_reports }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-base-content/50">No hay datos disponibles</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Stats -->
+    {% if databases_stats %}
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Estadísticas por Base de Datos
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Base de Datos</th>
+                            <th class="text-right">Tablas</th>
+                            <th class="text-right">Columnas</th>
+                            <th class="text-right">Reportes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for db in databases_stats %}
+                        <tr>
+                            <td class="font-semibold">{{ db.name }}</td>
+                            <td class="text-right">{{ db.tables }}</td>
+                            <td class="text-right">{{ db.columns }}</td>
+                            <td class="text-right">
+                                <span class="badge badge-primary">{{ db.reports }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

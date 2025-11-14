@@ -1,0 +1,98 @@
+{% load core_filters %}
+{% if columns %}
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title mb-4">Columnas</h2>
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>
+                            <label>
+                                <input type="checkbox" class="checkbox checkbox-sm" id="select-all" />
+                            </label>
+                        </th>
+                        <th>Columna</th>
+                        <th>Tipo de Dato</th>
+                        <th>Formato</th>
+                        <th>Agregación</th>
+                        <th>Nombre a Mostrar</th>
+                        <th>Orden de Columna</th>
+                        <th>Orden (ASC | DESC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column in columns %}
+                    <tr class="hover">
+                        <td>
+                            <label>
+                                {% get_queryset_value report_columns 'column_id' column.id 'id' '' as is_selected %}
+                                <input type="checkbox" name="columns" value="{{ column.id }}"
+                                    class="checkbox checkbox-sm column-checkbox" {% if is_selected %}checked{% endif %} />
+                            </label>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="font-medium">{{ column.column_name }}</div>
+                                {% if column.is_primary_key %}
+                                <div class="badge badge-primary badge-xs">PK</div>
+                                {% endif %}
+                                {% if column.is_foreign_key %}
+                                <div class="badge badge-secondary badge-xs">FK</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="badge badge-outline badge-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-xs" title="{{ column.data_type }}">{{ column.data_type }}</div>
+                        </td>
+                        <td>
+                            {% get_queryset_value report_columns 'column_id' column.id 'format' 'text' as selected_format %}
+                            <select name="format_{{ column.id }}" class="select select-bordered select-sm w-full max-w-xs">
+                                <option value="text" {% if selected_format == "text" %}selected{% endif %}>Texto</option>
+                                <option value="number" {% if selected_format == "number" %}selected{% endif %}>Número
+                                </option>
+                                <option value="date" {% if selected_format == "date" %}selected{% endif %}>Fecha</option>
+                                <option value="datetime" {% if selected_format == "datetime" %}selected{% endif %}>Fecha y
+                                    Hora</option>
+                                <option value="boolean" {% if selected_format == "boolean" %}selected{% endif %}>Booleano
+                                </option>
+                                <option value="currency" {% if selected_format == "currency" %}selected{% endif %}>Moneda
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            {% get_queryset_value report_columns 'column_id' column.id 'aggregate' 'none' as selected_aggregate %}
+                            <select name="aggregate_{{ column.id }}" class="select select-bordered select-sm w-full">
+                                <option value="none" {% if selected_aggregate == "none" %}selected{% endif %}>Primer valor</option>
+                                <option value="sum" {% if selected_aggregate == "sum" %}selected{% endif %}>Suma</option>
+                                <option value="avg" {% if selected_aggregate == "avg" %}selected{% endif %}>Promedio</option>
+                                <option value="min" {% if selected_aggregate == "min" %}selected{% endif %}>Mínimo</option>
+                                <option value="max" {% if selected_aggregate == "max" %}selected{% endif %}>Máximo</option>
+                                <option value="count" {% if selected_aggregate == "count" %}selected{% endif %}>Contar</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="display_name_{{ column.id }}"
+                                placeholder="{{ column.column_name }}" class="input input-bordered input-sm w-full"
+                                value="{% get_queryset_value report_columns 'column_id' column.id 'display_name' column.column_name %}" />
+                        </td>
+                        <td>
+                            <input type="number" name="order_{{ column.id }}" class="input input-bordered input-sm w-20"
+                                value="{% get_queryset_value report_columns 'column_id' column.id 'order' forloop.counter %}"
+                                min="1" />
+                        </td>
+                        <td class="text-center">
+                            {% get_queryset_value report_columns 'column_id' column.id 'order_by' '' as is_selected %}
+                            <input type="checkbox" name="order_by_{{ column.id }}" class="checkbox checkbox-sm" {% if is_selected %}checked{% endif %} />
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+    {% include "partials/alert.html" with alert_type="info" message="No hay columnas disponibles para esta tabla." %}
+{% endif %}

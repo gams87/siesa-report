@@ -1,0 +1,57 @@
+{% load static %}
+{% load core_filters %}
+{% load partials %}
+
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIESA Report</title>
+    <link rel="icon" type="image/svg+xml" href="{% url 'favicon' %}">
+    <link href="{% static 'css/daisyui.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/output.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet" type="text/css" />
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-base-100" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}' hx-get="{% url 'dashboard' %}" hx-trigger="DOMContentLoaded" hx-target="#content-pages" hx-push-url=true>
+    <!-- Navbar -->
+    <div class="navbar bg-neutral text-neutral-content shadow-lg">
+        <div class="navbar-start">
+            <!-- Mobile menu dropdown -->
+            <div class="dropdown">
+                <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
+                    </svg>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a class="text-base-content" hx-get="{% url 'dashboard' %}" hx-target="#content-pages">Dashboard</a></li>
+                    <li><a class="text-base-content" hx-get="{% url 'report' %}" hx-target="#content-pages">Reportes</a></li>
+                    <li><a class="text-base-content" hx-get="{% url 'config-report' %}" hx-target="#content-pages">Configuración</a></li>
+                </ul>
+            </div>
+            <!-- Logo -->
+            <p class="font-bold text-xl mr-4">SIESA Reportes</p>
+            
+            <!-- Desktop menu - moved to left -->
+            <ul class="menu menu-horizontal px-1 hidden lg:flex">
+                <li><a class="hover:bg-neutral-focus" hx-get="{% url 'dashboard' %}" hx-target="#content-pages">Dashboard</a></li>
+                <li><a class="hover:bg-neutral-focus" hx-get="{% url 'report' %}" hx-target="#content-pages">Reportes</a></li>
+                <li><a class="hover:bg-neutral-focus" hx-get="{% url 'config-report' %}" hx-target="#content-pages">Configuración</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content-pages" class="container mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/sweetalert2.min.js' %}"></script>
+    <script src="{% static 'js/tailwindcss.min.js' %}"></script>
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+    <script src="{% static 'js/main.js' %}" defer></script>
+</body>
+</html>
