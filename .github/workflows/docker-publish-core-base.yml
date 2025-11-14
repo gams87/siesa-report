@@ -37,8 +37,8 @@ jobs:
       - name: Build and push base Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./src/backend/core
-          file: ./src/backend/core/Dockerfile.base
+          context: ./src/core
+          file: ./src/core/Dockerfile.base
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
