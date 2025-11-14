@@ -1,0 +1,46 @@
+name: Build and Push Docker core base image multiplatform
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/core/Dockerfile.base'
+
+env:
+  DOCKER_IMAGE_BASE: ${{ vars.DOCKER_IMAGE_BASE }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set variables
+        id: vars
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          echo "DATE_TAG=$(date +'%Y%m%d')" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push base Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/backend/core
+          file: ./src/backend/core/Dockerfile.base
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.DOCKER_IMAGE_BASE }}-core-base:latest
+            ${{ env.DOCKER_IMAGE_BASE }}-core-base:${{ env.DATE_TAG }}-${{ env.SHORT_SHA }}

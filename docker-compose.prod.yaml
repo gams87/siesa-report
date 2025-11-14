@@ -1,0 +1,106 @@
+name: siesa-report-prod
+
+services:
+  cache:
+    image: redis:7-alpine
+    container_name: cache_prod
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache_data:/data
+    networks:
+      - siesa_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/backups:/backups
+    networks:
+      - siesa_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  core:
+    image: siesa-core:prod
+    container_name: core_prod
+    restart: always
+    build:
+      context: ./src/core
+      dockerfile: Dockerfile
+      args:
+        - DEV=false
+        - DOCKER_IMAGE_BASE=${DOCKER_IMAGE_BASE:-python:3.12-slim}
+    environment:
+      DEBUG: "false"
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_REPORT_HOST: ${DB_REPORT_HOST}
+      DB_REPORT_NAME: ${DB_REPORT_NAME}
+      DB_REPORT_USER: ${DB_REPORT_USER}
+      DB_REPORT_PASSWORD: ${DB_REPORT_PASSWORD}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@cache:6379/0
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn report.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 60 --access-logfile - --error-logfile -"
+    depends_on:
+      cache:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - siesa_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./src/core/app/static:/usr/share/nginx/html/static:ro
+      - ./src/core/app/media:/usr/share/nginx/html/media:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - core
+    networks:
+      - siesa_net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  cache_data:
+  postgres_data:
+
+networks:
+  siesa_net:
+    driver: bridge
