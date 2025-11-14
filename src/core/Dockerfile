@@ -1,7 +1,7 @@
 ARG DOCKER_IMAGE_BASE=siesa-report
 ARG DEV=false
 
-FROM ${DOCKER_IMAGE_BASE}-core-base:20250818-8a1f451
+FROM ${DOCKER_IMAGE_BASE}-core-base:latest
 
 COPY ./scripts /scripts
 COPY ./app /app
