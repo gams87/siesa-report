@@ -40,7 +40,7 @@ elif [ "$RUN_MODE" == "local" ]; then
 else
     echo "Starting in Production mode"
     python manage.py migrate
-    python manage.py collectstatic --no-input --clear
+    # python manage.py collectstatic --no-input --clear
     daphne -b 0.0.0.0 -p 8000 report.asgi:application
 
 fi
