@@ -94,4 +94,6 @@ src/core/app/celerybeat-schedule
 .env
 src/core/app/.env
 src/core/app/media/*
+prod/static
+prod/media
 **/.DS_Store

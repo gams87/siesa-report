@@ -14,9 +14,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import django
 import environ
-from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 
 os.environ["DJANGO_RUNSERVER_HIDE_WARNING"] = "true"
@@ -178,14 +176,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 MEDIA_ROOT = BASE_DIR / "media"
-STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+STATIC_URL = "/static/"
 
 if not DEBUG:
     STATIC_ROOT = BASE_DIR / "static"
 else:
     STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
 
-MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -14,6 +14,10 @@ RUN pip install -r /tmp/requirements.txt && \
     chmod -R +x /scripts && \
     rm -rf /tmp/*
 
+RUN mkdir -p /app/media /app/static && \
+    chown -R app-user:app-user /app && \
+    chmod -R 755 /app
+
 USER app-user
 
 ENV PATH="/scripts:/py/bin:$PATH"

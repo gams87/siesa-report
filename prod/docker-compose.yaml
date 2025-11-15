@@ -3,7 +3,7 @@ name: siesa-report-prod
 services:
   cache:
     image: redis:7-alpine
-    container_name: cache_prod
+    container_name: cache
     restart: always
     # command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     command: redis-server --appendonly yes --replica-read-only no
@@ -39,15 +39,15 @@ services:
       retries: 5
 
   core:
-    image: galejandromorera/galejandromorera/siesa-report-core:${CORE_TAG}
+    image: galejandromorera/siesa-report-core:${CORE_TAG}
     container_name: core
     restart: always
     environment:
       RUN_MODE: ${RUN_MODE}
     volumes:
       - ./.env:/app/.env
-      - ./static:/app/static
-      - ./media:/app/media
+      - static_data:/app/static
+      - media_data:/app/media
     depends_on:
       cache:
         condition: service_healthy
@@ -58,16 +58,16 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: nginx_prod
+    container_name: nginx
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "81:80"
+      # - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./static:/vol/static
-      - ./media:/vol/media
+      - static_data:/vol/static
+      - media_data:/vol/media
     depends_on:
       - core
     networks:
@@ -81,6 +81,8 @@ services:
 volumes:
   cache_data:
   postgres_data:
+  static_data:
+  media_data:
 
 networks:
   siesa_net:
