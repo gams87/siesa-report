@@ -19,7 +19,7 @@
 
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">Tabla</legend>
-                        <select class="select select-sm w-full" hx-get="{% url 'config-report-columns' %}" hx-target="#columns-container" hx-trigger="change"
+                        <select class="select select-sm w-full" hx-get="{% url 'config-report-columns' %}" hx-target="#columns-container" hx-trigger="change" hx-push-url="false"
                             name="table_id" required>
                             <option value="">Selecciona una tabla</option>
                             {% for table in tables %}

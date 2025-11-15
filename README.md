@@ -24,5 +24,8 @@ docker compose exec -T db psql -U postgres < postgres/init_report_db.sql
 4. Actualizar los valores del archivo `.env` de acuerdo a nuestro ambiente.
 5. En una terminal ejecutar: `docker compose up -d`.
 6. Cree un superusuario ejecutando el siguiente comando en una terminal: `docker compose exec core python manage.py createsuperuser`. (Guarde sus credenciales)
-7. Abra el panel de administración y cree una compañia en [http://localhost/admin](http://localhost/admin).
-7. Ya puede gestionar sus reportes en [http://localhost](http://localhost).
+7. Abra el panel de administración, cree una compañia en [http://localhost/admin](http://localhost/admin) y establézcala como predeterminada.
+8. Ya puede gestionar sus reportes en [http://localhost](http://localhost).
+9. Puede sincronizar la base de datos en el siguiente componente del dahsboard:
+
+![Sincronizar base de datos](docs/img/sync-data.png)
