@@ -2,11 +2,31 @@
 
 {% block content %}
     <div style="text-align: center; margin-bottom: 20px;">
-        <h2>{{ title }}</h2>
-        <p><strong>Período:</strong> {{ start_date }} - {{ end_date }}</p>
-        <p><strong>Total de registros:</strong> {{ total_regs }}</p>
+        <h1 class="title">Control de Temperaturas en las Cámaras</h1>
+        <h2 class="sub-title">{{ title }}</h2>
+        <p>Reporte del {{ start_date }} al {{ end_date }}</p>
+        <p class="summary-highlight">
+            TOTAL DE REGISTROS: {{ total_regs }}{% for part in summary_parts %} | {{ part }}{% endfor %}
+        </p>
     </div>
 
     {{ body|safe }}
+
+    <div>
+        <table class="table-images">
+        <tbody>
+            <tr>
+                <td>
+                    <p>R02-DFM-02</p>
+                    <p>Versión 3</p>
+                </td>
+                <td class="text-end">
+                    <p>Rige a partir del 1 de enero de 2026</p>
+                    <p>SAC-2024-02</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
 
 {% endblock %}

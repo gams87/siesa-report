@@ -19,6 +19,9 @@
                         <th>Nombre a Mostrar</th>
                         <th>Orden de Columna</th>
                         <th>Orden (ASC | DESC)</th>
+                        <th>Prom.</th>
+                        <th>Mín.</th>
+                        <th>Máx.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,6 +87,18 @@
                         <td class="text-center">
                             {% get_queryset_value report_columns 'column_id' column.id 'order_by' '' as is_selected %}
                             <input type="checkbox" name="order_by_{{ column.id }}" class="checkbox checkbox-sm" {% if is_selected %}checked{% endif %} />
+                        </td>
+                        <td class="text-center">
+                            {% get_queryset_value report_columns 'column_id' column.id 'summary_avg' '' as has_avg %}
+                            <input type="checkbox" name="summary_avg_{{ column.id }}" class="checkbox checkbox-sm" {% if has_avg %}checked{% endif %} />
+                        </td>
+                        <td class="text-center">
+                            {% get_queryset_value report_columns 'column_id' column.id 'summary_min' '' as has_min %}
+                            <input type="checkbox" name="summary_min_{{ column.id }}" class="checkbox checkbox-sm" {% if has_min %}checked{% endif %} />
+                        </td>
+                        <td class="text-center">
+                            {% get_queryset_value report_columns 'column_id' column.id 'summary_max' '' as has_max %}
+                            <input type="checkbox" name="summary_max_{{ column.id }}" class="checkbox checkbox-sm" {% if has_max %}checked{% endif %} />
                         </td>
                     </tr>
                     {% endfor %}

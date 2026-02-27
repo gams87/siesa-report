@@ -6,7 +6,7 @@ Todos los derechos reservados.
 ## Ejemplo de base de datos
 
 ```sql
-docker compose exec -T db psql -U postgres < postgres/init_report_db.sql
+docker compose exec -T db psql -U postgres < postgres/backups/init_report_db.sql
 ```
 
 ## Configurar Ambiente de Producción
