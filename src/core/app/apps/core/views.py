@@ -16,6 +16,7 @@ from django_htmx.middleware import HtmxDetails
 
 from apps.company.models import Company
 from apps.core.models import Database
+from apps.utils.number_utils import number_format
 from apps.utils.pdf_utils import PDFUtils
 
 from .models import Column, Report, ReportColumn, Table
@@ -184,6 +185,9 @@ def config_report_detail_view(request: HtmxHttpRequest) -> HttpResponse:
                 "order": data.get(f"order_{column.id}", 0),
                 "order_by": data.get(f"order_by_{column.id}", "off") == "on",
                 "aggregate": data.get(f"aggregate_{column.id}", ReportColumn.AggregateFunction.NONE),
+                "summary_avg": data.get(f"summary_avg_{column.id}", "off") == "on",
+                "summary_min": data.get(f"summary_min_{column.id}", "off") == "on",
+                "summary_max": data.get(f"summary_max_{column.id}", "off") == "on",
             }
 
         if report_id:
@@ -212,6 +216,9 @@ def config_report_detail_view(request: HtmxHttpRequest) -> HttpResponse:
                 display_name=config[column.slug]["display_name"].strip().capitalize(),
                 order_by=config[column.slug]["order_by"],
                 aggregate=config[column.slug]["aggregate"],
+                summary_avg=config[column.slug]["summary_avg"],
+                summary_min=config[column.slug]["summary_min"],
+                summary_max=config[column.slug]["summary_max"],
                 is_visible=True,
             )
 
@@ -364,9 +371,31 @@ def report_gen_pdf_view(request):
 
         # Determine which columns are numeric for formatting
         numeric_columns = []
+        summary_config = {}
         for rc in report.report_columns.all():
             if rc.format in [ReportColumn.FormatColumn.NUMBER, ReportColumn.FormatColumn.CURRENCY]:
                 numeric_columns.append(rc.get_display_name())
+            stats = []
+            if rc.summary_avg:
+                stats.append("avg")
+            if rc.summary_min:
+                stats.append("min")
+            if rc.summary_max:
+                stats.append("max")
+            if stats:
+                summary_config[rc.get_display_name()] = stats
+
+        # Calculate summary stats for the PDF header
+        summary_parts = []
+        if summary_config and len(df) > 0:
+            for col_name, stats in summary_config.items():
+                numeric_series = pd.to_numeric(df[col_name], errors="coerce")
+                if "avg" in stats:
+                    summary_parts.append(f"PROMEDIO: {number_format(numeric_series.mean())}")
+                if "max" in stats:
+                    summary_parts.append(f"MÁXIMA: {number_format(numeric_series.max())}")
+                if "min" in stats:
+                    summary_parts.append(f"MÍNIMA: {number_format(numeric_series.min())}")
 
         # Company info (you can customize this)
         if not Company.objects.filter(is_default=True).exists():
@@ -389,6 +418,7 @@ def report_gen_pdf_view(request):
                 "start_date": start_date_obj.strftime("%d/%m/%Y"),
                 "end_date": end_date_obj.strftime("%d/%m/%Y"),
                 "total_regs": total_count,
+                "summary_parts": summary_parts,
             },
         ).gen_with_df(
             filename=f"{report.name.lower().replace(' ', '_')}.pdf",

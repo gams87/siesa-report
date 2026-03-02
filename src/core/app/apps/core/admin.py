@@ -80,7 +80,7 @@ class ColumnAdmin(admin.ModelAdmin):
 class ReportColumnInline(admin.TabularInline):
     model = ReportColumn
     extra = 1
-    fields = ["column", "order", "display_name", "is_visible"]
+    fields = ["column", "order", "display_name", "is_visible", "summary_avg", "summary_min", "summary_max"]
     ordering = ["order"]
     autocomplete_fields = ["column"]
 
@@ -121,7 +121,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(ReportColumn)
 class ReportColumnAdmin(admin.ModelAdmin):
-    list_display = ["report", "column", "order", "display_name", "is_visible"]
+    list_display = ["report", "column", "order", "display_name", "is_visible", "summary_avg", "summary_min", "summary_max"]
     list_filter = ["is_visible", "report__table__database"]
     search_fields = ["report__name", "column__column_name", "display_name"]
     ordering = ["report", "order"]

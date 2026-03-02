@@ -68,8 +68,9 @@ class PDFUtils:
                     html.append(f'<td style="text-align: end">{value}</td>')
                 else:
                     html.append(f"<td>{dict_data[1][key][subkey]}</td>")
+            html.append("</tr>")
 
-        html.append("</tr></table>")
+        html.append("</table>")
         ctx = {"body": "".join(html)}
         ctx.update(self.context)
         self.context = ctx

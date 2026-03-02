@@ -356,6 +356,9 @@ class ReportColumn(models.Model):
         verbose_name=_("Función de agregación"),
         help_text=_("Función a aplicar cuando se agrupa por intervalos"),
     )
+    summary_avg = models.BooleanField(default=False, verbose_name=_("Promedio en PDF"))
+    summary_min = models.BooleanField(default=False, verbose_name=_("Mínimo en PDF"))
+    summary_max = models.BooleanField(default=False, verbose_name=_("Máximo en PDF"))
 
     class Meta:
         verbose_name = _("Columna del reporte")
