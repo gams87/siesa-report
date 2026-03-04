@@ -10,6 +10,7 @@ from django.core.management import call_command
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 from django_htmx.middleware import HtmxDetails
@@ -110,6 +111,7 @@ def dashboard_view(request: HtmxHttpRequest) -> HttpResponse:
     return render(request, "dashboard.html", context=ctx)
 
 
+@login_required
 def config_report_sync_view(request: HtmxHttpRequest) -> HttpResponse:
     """Sync database metadata by calling the management command"""
     try:
@@ -133,10 +135,11 @@ def config_report_sync_view(request: HtmxHttpRequest) -> HttpResponse:
         return response
 
 
+@login_required
 def config_report_view(request: HtmxHttpRequest) -> HttpResponse:
     """View to list and paginate reports configuration"""
 
-    reports = Report.objects.filter(is_active=True).select_related("table", "table__database").order_by("-updated_at")
+    reports = Report.objects.filter(is_active=True).select_related("table", "table__database").order_by("name")
 
     page_num = request.GET.get("page")
     page_size = int(request.GET.get("page_size", 10))
@@ -154,6 +157,7 @@ def config_report_view(request: HtmxHttpRequest) -> HttpResponse:
     return render(request, template_name, context=ctx)
 
 
+@login_required
 @require_http_methods(["DELETE"])
 def config_report_delete_view(request: HtmxHttpRequest, report_id: int) -> HttpResponse:
     """Delete a report by ID"""
@@ -164,6 +168,7 @@ def config_report_delete_view(request: HtmxHttpRequest, report_id: int) -> HttpR
     return response
 
 
+@login_required
 def config_report_detail_view(request: HtmxHttpRequest) -> HttpResponse:
     """View to create or edit a report configuration"""
 
@@ -245,6 +250,7 @@ def config_report_detail_view(request: HtmxHttpRequest) -> HttpResponse:
     return render(request, template_name, context=ctx)
 
 
+@login_required
 def config_report_column_view(request: HtmxHttpRequest) -> HttpResponse:
     report_id = request.GET.get("report_id")
     if report_id:
@@ -421,7 +427,7 @@ def report_gen_pdf_view(request):
                 "summary_parts": summary_parts,
             },
         ).gen_with_df(
-            filename=f"{report.name.lower().replace(' ', '_')}.pdf",
+            filename=f"{report.name.lower().replace(' ', '_')}_{start_date_obj.strftime('%d-%m-%Y')}_{end_date_obj.strftime('%d-%m-%Y')}.pdf",
             df=df,
             columns_number=numeric_columns,
         )

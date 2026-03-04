@@ -115,6 +115,8 @@ class Report(BaseModel):
         FIFTEEN = "15", _("15 minutos")
         THIRTY = "30", _("30 minutos")
         SIXTY = "60", _("60 minutos")
+        TWO_HOURS = "120", _("2 horas")
+        SIX_HOURS = "360", _("6 horas")
 
     name = models.CharField(max_length=255, verbose_name=_("Nombre del reporte"))
     description = models.TextField(blank=True, null=True, verbose_name=_("Descripción"))
