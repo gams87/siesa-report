@@ -55,7 +55,7 @@
                         <tr>
                             <th class="bg-base-200">Reporte</th>
                             <th class="bg-base-200">Tabla</th>
-                            <th class="bg-base-200">Orientación</th>
+                            <th class="bg-base-200">Intervalo</th>
                             <th class="bg-base-200">Creado el</th>
                             <th class="bg-base-200">Actualizado el</th>
                             <th class="bg-base-200">Acciones</th>
@@ -71,7 +71,7 @@
                                     <div class="badge badge-outline badge-sm">{{ report.table }}</div>
                                 </td>
                                 <td>
-                                    <div class="badge badge-outline badge-sm">{{ report.orientation }}</div>
+                                    <div class="badge badge-outline badge-sm">{{ report.get_interval_display }}</div>
                                 </td>
                                 <td>
                                     {{ report.created_at }}

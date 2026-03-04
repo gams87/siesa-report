@@ -13,12 +13,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">Reporte</legend>
-                        <select class="select select-sm w-full" name="report_id" required>
+                        <select class="select select-sm w-full" name="report_id" id="report-select" required
+                            onchange="updateInterval()">
                             <option value="">Selecciona un reporte</option>
                             {% for report in reports %}
-                            <option value="{{ report.id }}">{{ report.name }}</option>
+                            <option value="{{ report.id }}" data-interval="{{ report.get_interval_display }}">{{ report.name }}</option>
                             {% endfor %}
                         </select>
+                        <span id="interval-display" class="text-xs text-base-content/60 mt-1 hidden"></span>
                     </fieldset>
 
                     <fieldset class="fieldset">
@@ -28,11 +30,25 @@
 
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">Fecha Final</legend>
-                        <input type="date" name="end_date" id="end_date" class="input input-sm  input-bordered w-full" required />
+                        <input type="date" name="end_date" id="end_date" class="input input-sm input-bordered w-full" required />
                     </fieldset>
 
                     <div id="report-parameters"></div>
                 </div>
+
+                <script>
+                    function updateInterval() {
+                        const select = document.getElementById('report-select');
+                        const display = document.getElementById('interval-display');
+                        const selected = select.options[select.selectedIndex];
+                        if (selected.value) {
+                            display.textContent = 'Intervalo: ' + selected.dataset.interval;
+                            display.classList.remove('hidden');
+                        } else {
+                            display.classList.add('hidden');
+                        }
+                    }
+                </script>
             </div>
         </div>
 

@@ -123,14 +123,15 @@
 <table class="table-images">
     <tbody>
         <tr>
-            <td>
-                <h1 class="title">{{ company.name }}</h1>
-            </td>
-            <td class="text-end">
-                {% if company.logo_base64 %}
+            {% if company.logo_base64 %}
+                <td>
                     <img class="img-logo" src="data:image/{{ company.logo_format|default:'png' }};base64,{{ company.logo_base64 }}" alt="logo"/>
-                {% endif %}
-            </td>
+                </td>
+            {% else %}
+                <td>
+                    <h1 class="title">{{ company.name }}</h1>
+                </td>
+            {% endif %}
         </tr>
     </tbody>
 </table>
@@ -138,5 +139,6 @@
 {% block content %} {% endblock %}
 
 <div class="clear-fix"></div>
+
 </body>
 </html>

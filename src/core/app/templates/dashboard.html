@@ -6,7 +6,7 @@
 
 <div hx-disabled-elt=".btn">
     <!-- Action Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 {% if user.is_authenticated %}md:grid-cols-3{% endif %} gap-6">
         <!-- Card 1 -->
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
@@ -23,7 +23,8 @@
             </div>
         </div>
 
-        <!-- Card 2 -->
+        <!-- Card 2 - Solo visible para usuarios autenticados -->
+        {% if user.is_authenticated %}
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
                 <h2 class="card-title">
@@ -38,8 +39,10 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Card 3 -->
+        <!-- Card 3 - Solo visible para usuarios autenticados -->
+        {% if user.is_authenticated %}
         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
             <div class="card-body">
                 <h2 class="card-title">
@@ -54,10 +57,11 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- Stats Grid Principal -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <!-- Total Reportes -->
         <div class="stats shadow-lg bg-gradient-to-br from-accent to-accent-focus text-accent-content">
             <div class="stat">
@@ -97,20 +101,6 @@
                 <div class="stat-title text-accent-content/80">Tablas</div>
                 <div class="stat-value">{{ total_tables }}</div>
                 <div class="stat-desc text-accent-content/70">Sincronizadas</div>
-            </div>
-        </div>
-
-        <!-- Total Columnas -->
-        <div class="stats shadow-lg bg-gradient-to-br from-info to-info-focus text-info-content">
-            <div class="stat">
-                <div class="stat-figure opacity-80">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
-                    </svg>
-                </div>
-                <div class="stat-title text-info-content/80">Columnas</div>
-                <div class="stat-value">{{ total_columns }}</div>
-                <div class="stat-desc text-info-content/70">Disponibles</div>
             </div>
         </div>
     </div>

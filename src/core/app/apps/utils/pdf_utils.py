@@ -1,4 +1,6 @@
 import io
+import logging
+import os
 import tempfile
 
 import pdfkit
@@ -6,6 +8,8 @@ from django.core.files import File
 from django.template.loader import render_to_string
 
 from apps.utils.number_utils import number_format
+
+logger = logging.getLogger(__name__)
 
 
 class PDFUtils:
@@ -15,41 +19,50 @@ class PDFUtils:
         template: str,
         context: dict,
         is_landscape=False,
-        footer_template=None,
+        footer_template="footer.html",
     ):
         self.company = company
         self.context = context
         self.template = f"pdf/{template}"
         self.is_landscape = is_landscape
-        self.footer_template = f"pdf/{footer_template}" if footer_template is not None else None
+        self.footer_template = f"pdf/{footer_template}"
 
     def gen(self, filename: str):
         ctx = {"company": self.company}
         ctx.update(self.context)
         options = {
-            "--encoding": "utf-8",
-            "--orientation": "Landscape" if self.is_landscape else "Portrait",
-            "--enable-local-file-access": None,
-            "--load-error-handling": "ignore",
-            "--load-media-error-handling": "ignore",
+            "encoding": "utf-8",
+            "orientation": "Landscape" if self.is_landscape else "Portrait",
+            "enable-local-file-access": None,
+            "load-error-handling": "ignore",
+            "load-media-error-handling": "ignore",
+            "margin-bottom": "25mm",
         }
 
+        footer_path = None
+        main_path = None
         try:
-            if self.footer_template:
-                with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as footer_html:
-                    # options['--footer-html'] = footer_html.name
-                    # options['--footer-html'] = footer_html.name
-                    footer_data = render_to_string(self.footer_template).encode("utf-8")
-                    footer_html.write(footer_data)
+            # Write footer to temp file
+            footer_html_content = render_to_string(self.footer_template).encode("utf-8")
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as footer_file:
+                footer_file.write(footer_html_content)
+                footer_path = footer_file.name
+            options["footer-html"] = footer_path
 
+            # Write main HTML to temp file (footer-html works better with from_file)
             main_html = render_to_string(self.template, ctx)
-            pdf = pdfkit.from_string(main_html, output_path=False, options=options)
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as main_file:
+                main_file.write(main_html)
+                main_path = main_file.name
+
+            pdf = pdfkit.from_file(main_path, output_path=False, options=options)
             return File(io.BytesIO(pdf), name=filename)
 
         finally:
-            if self.footer_template:
-                # os.remove(options['--footer-html'])
-                pass
+            if footer_path and os.path.exists(footer_path):
+                os.remove(footer_path)
+            if main_path and os.path.exists(main_path):
+                os.remove(main_path)
 
     def gen_with_df(self, filename: str, df, columns_number=None):
         if columns_number is None:

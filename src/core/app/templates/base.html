@@ -28,7 +28,9 @@
                 <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                     <li><a class="text-base-content" hx-get="{% url 'dashboard' %}" hx-target="#content-pages">Dashboard</a></li>
                     <li><a class="text-base-content" hx-get="{% url 'report' %}" hx-target="#content-pages">Reportes</a></li>
+                    {% if user.is_authenticated %}
                     <li><a class="text-base-content" hx-get="{% url 'config-report' %}" hx-target="#content-pages">Configuración</a></li>
+                    {% endif %}
                 </ul>
             </div>
             <!-- Logo -->
@@ -38,7 +40,9 @@
             <ul class="menu menu-horizontal px-1 hidden lg:flex">
                 <li><a class="hover:bg-neutral-focus" hx-get="{% url 'dashboard' %}" hx-target="#content-pages">Dashboard</a></li>
                 <li><a class="hover:bg-neutral-focus" hx-get="{% url 'report' %}" hx-target="#content-pages">Reportes</a></li>
+                {% if user.is_authenticated %}
                 <li><a class="hover:bg-neutral-focus" hx-get="{% url 'config-report' %}" hx-target="#content-pages">Configuración</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
