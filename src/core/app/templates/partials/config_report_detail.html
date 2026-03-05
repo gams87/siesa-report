@@ -44,7 +44,9 @@
                             <option value="10" {% if report.interval == "10" %}selected{% endif %}>10 minutos</option>
                             <option value="15" {% if report.interval == "15" %}selected{% endif %}>15 minutos</option>
                             <option value="30" {% if report.interval == "30" %}selected{% endif %}>30 minutos</option>
-                            <option value="60" {% if report.interval == "60" %}selected{% endif %}>60 minutos</option>
+                            <option value="60" {% if report.interval == "60" %}selected{% endif %}>1 hora</option>
+                            <option value="120" {% if report.interval == "120" %}selected{% endif %}>2 horas</option>
+                            <option value="360" {% if report.interval == "360" %}selected{% endif %}>6 horas</option>
                         </select>
                     </fieldset>
 
